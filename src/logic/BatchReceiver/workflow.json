@@ -1,0 +1,314 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Filter_array": {
+                "type": "Query",
+                "inputs": {
+                    "from": "@result('Scope')",
+                    "where": "@equals(item()?['status'], 'Failed')"
+                },
+                "runAfter": {
+                    "Scope": [
+                        "FAILED"
+                    ]
+                }
+            },
+            "InitializeBatchOutput": {
+                "type": "InitializeVariable",
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "batchOutput",
+                            "type": "array"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "InitializeSuccessCount": [
+                        "Succeeded"
+                    ]
+                }
+            },
+            "InitializeFailedCount": {
+                "type": "InitializeVariable",
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "failedcount",
+                            "type": "integer",
+                            "value": 0
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Trace": [
+                        "Succeeded"
+                    ]
+                }
+            },
+            "InitializeSuccessCount": {
+                "type": "InitializeVariable",
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "successCount",
+                            "type": "integer"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "InitializeFailedCount": [
+                        "Succeeded"
+                    ]
+                }
+            },
+            "Scope": {
+                "type": "Scope",
+                "actions": {
+                    "ComposeBatchOutput": {
+                        "type": "Compose",
+                        "inputs": "@concat('[',join(variables('batchOutput'),','),']')",
+                        "runAfter": {
+                            "For_each": [
+                                "Succeeded"
+                            ]
+                        }
+                    },
+                    "For_each": {
+                        "type": "Foreach",
+                        "foreach": "@triggerBody()['items']",
+                        "actions": {
+                            "CheckPostcode": {
+                                "type": "If",
+                                "expression": {
+                                    "and": [
+                                        {
+                                            "equals": [
+                                                "@empty(body('Parse_JSON')?['letter']?['address']?['postCode'])",
+                                                "@true"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "actions": {
+                                    "IncrementFailedCount": {
+                                        "type": "IncrementVariable",
+                                        "inputs": {
+                                            "name": "failedcount",
+                                            "value": 1
+                                        },
+                                        "runAfter": {}
+                                    }
+                                },
+                                "runAfter": {
+                                    "Parse_JSON": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "else": {
+                                    "actions": {
+                                        "Append_to_array_variable": {
+                                            "type": "AppendToArrayVariable",
+                                            "inputs": {
+                                                "name": "batchOutput",
+                                                "value": "@body('Transform_XML_To_JSON')"
+                                            },
+                                            "runAfter": {
+                                                "IncrementSuccessCount": [
+                                                    "Succeeded"
+                                                ]
+                                            }
+                                        },
+                                        "IncrementSuccessCount": {
+                                            "type": "IncrementVariable",
+                                            "inputs": {
+                                                "name": "successCount",
+                                                "value": 1
+                                            },
+                                            "runAfter": {}
+                                        }
+                                    }
+                                }
+                            },
+                            "Compose": {
+                                "type": "Compose",
+                                "inputs": "@items('For_each')?['content']",
+                                "runAfter": {}
+                            },
+                            "Parse_JSON": {
+                                "type": "ParseJson",
+                                "inputs": {
+                                    "content": "@body('Transform_XML_To_JSON')",
+                                    "schema": {
+                                        "properties": {
+                                            "letter": {
+                                                "properties": {
+                                                    "address": {
+                                                        "properties": {
+                                                            "addressLines": {
+                                                                "items": {
+                                                                    "properties": {
+                                                                        "addressLine": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "addressLine"
+                                                                    ],
+                                                                    "type": "object"
+                                                                },
+                                                                "type": "array"
+                                                            },
+                                                            "postCode": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "email": {
+                                                        "type": "string"
+                                                    },
+                                                    "firstName": {
+                                                        "type": "string"
+                                                    },
+                                                    "lastName": {
+                                                        "type": "string"
+                                                    },
+                                                    "title": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "runAfter": {
+                                    "Transform_XML_To_JSON": [
+                                        "Succeeded"
+                                    ]
+                                }
+                            },
+                            "Transform_XML_To_JSON": {
+                                "type": "Liquid",
+                                "kind": "XmlToJson",
+                                "inputs": {
+                                    "content": "@outputs('Compose')",
+                                    "map": {
+                                        "source": "LogicApp",
+                                        "name": "xmltojson.liquid"
+                                    }
+                                },
+                                "runAfter": {
+                                    "Compose": [
+                                        "Succeeded"
+                                    ]
+                                }
+                            }
+                        },
+                        "runAfter": {}
+                    },
+                    "Send_an_email_(V2)": {
+                        "type": "ApiConnection",
+                        "inputs": {
+                            "host": {
+                                "connection": {
+                                    "referenceName": "office365"
+                                }
+                            },
+                            "method": "post",
+                            "body": {
+                                "To": "nishapillai@microsoft.com",
+                                "Subject": "Batch Process Report",
+                                "Body": "<p><span style=\"font-size: 14px\"><strong>Report<br>\n</strong></span><span style=\"font-size: 11px\"><br>\n</span><span style=\"font-size: 11px\"><em>Success Count: </em></span><span style=\"font-size: 11px\"><em>@{variables('successCount')}</em></span><span style=\"font-size: 11px\"><em><br>\nFailure Count: </em></span><span style=\"font-size: 11px\"><em>@{variables('failedcount')}</em></span><span style=\"font-size: 14px\"><strong></strong></span></p>",
+                                "Importance": "Normal"
+                            },
+                            "path": "/v2/Mail"
+                        },
+                        "runAfter": {
+                            "Upload_blob_to_storage_container": [
+                                "Succeeded"
+                            ]
+                        }
+                    },
+                    "Upload_blob_to_storage_container": {
+                        "type": "ServiceProvider",
+                        "inputs": {
+                            "parameters": {
+                                "containerName": "batch",
+                                "blobName": "@concat('batch',formatDateTime(utcNow(),'ddMMyyyyHHmmss'),'.json')",
+                                "content": "@outputs('ComposeBatchOutput')",
+                                "overrideIfExists": "@true"
+                            },
+                            "serviceProviderConfiguration": {
+                                "connectionName": "AzureBlob-2",
+                                "operationId": "uploadBlob",
+                                "serviceProviderId": "/serviceProviders/AzureBlob"
+                            }
+                        },
+                        "runAfter": {
+                            "ComposeBatchOutput": [
+                                "Succeeded"
+                            ]
+                        }
+                    }
+                },
+                "runAfter": {
+                    "InitializeBatchOutput": [
+                        "Succeeded"
+                    ]
+                }
+            },
+            "Terminate": {
+                "type": "Terminate",
+                "inputs": {
+                    "runStatus": "Failed",
+                    "runError": {
+                        "code": "500",
+                        "message": "@{body('Filter_array')}"
+                    }
+                },
+                "runAfter": {
+                    "Filter_array": [
+                        "Succeeded"
+                    ]
+                }
+            },
+            "Trace": {
+                "type": "Compose",
+                "inputs": {
+                    "interfaceId": "IDD1.0",
+                    "trace": "Message Received in Batch Receiver"
+                },
+                "runAfter": {},
+                "trackedProperties": {
+                    "InterfaceId": "@{outputs('Trace')?['interfaceId']}",
+                    "TraceMessage": "@{outputs('Trace')?['trace']}"
+                }
+            }
+        },
+        "triggers": {
+            "Batch_messages": {
+                "type": "Batch",
+                "inputs": {
+                    "mode": "Inline",
+                    "configurations": {
+                        "TestBatch1": {
+                            "releaseCriteria": {
+                                "recurrence": {
+                                    "frequency": "Hour",
+                                    "interval": 1
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {}
+    },
+    "kind": "Stateful"
+}

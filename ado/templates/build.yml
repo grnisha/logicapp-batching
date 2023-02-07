@@ -1,0 +1,25 @@
+steps:
+  - task: CopyFiles@2
+    displayName: Create project folder
+    inputs:
+      SourceFolder: '$(System.DefaultWorkingDirectory)'
+      Contents: |
+        src/logic/**
+      TargetFolder: 'publish_output'   
+
+  - task: ArchiveFiles@2
+    displayName: "Create project zip"
+    inputs:
+      rootFolderOrFile: "$(System.DefaultWorkingDirectory)/publish_output/logic"
+      includeRootFolder: false
+      archiveType: zip
+      archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+      replaceExistingArchive: true
+
+  - publish: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+    displayName: Create logic app artifact
+    artifact: drop
+
+  - publish: $(Build.Repository.LocalPath)/iac
+    displayName: Create ARM template artifacts
+    artifact: deploy

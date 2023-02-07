@@ -1,0 +1,50 @@
+parameters:
+  - name: buildNumber
+    type: string
+
+steps:
+
+  - task: AzureCLI@2    
+    displayName: "Create resource group"
+    inputs:
+      azureSubscription: "scazuredev"
+      scriptType: "pscore"
+      scriptLocation: "inlineScript"
+      inlineScript: |
+        $ifExists = az group exists -n "$(rgName)"
+        if ($ifExists -eq 'false') {
+          echo 'creating the resource group'
+          az group create -n "$(rgName)" -l "$(rgLocation)"
+        }       
+
+
+  - task: AzureCLI@2    
+    displayName: "Provision resources"
+    inputs:
+      azureSubscription: "scazuredev"
+      scriptType: "pscore"
+      scriptLocation: "inlineScript"
+      inlineScript: |    
+        az deployment group create `
+        --name funcapp-$(Build.BuildNumber) `
+        --resource-group "$(rgName)" `
+        --template-file "$(Pipeline.Workspace)/deploy/main.bicep" `
+        --parameters "sgName=$(sgName)" `
+        "buildNumber=$(Build.BuildNumber)" `
+        "appInsName=ins-$(logicAppName)" `
+        "sku=$(sgType)" `
+        "planName=$(planName)" `
+        "planSku=$(planSku)" `
+        "planTier=$(planTier)" `
+        "logName=$(logName)" `
+        "keyVaultName=$(keyVaultName)" `
+        "logicAppName=$(logicAppName)"
+
+  - task: AzureFunctionApp@1
+    displayName: 'Deploy logic app workflows'
+    inputs:
+      azureSubscription: 'scazuredev'
+      appType: 'functionApp'
+      appName: '$(logicAppName)'
+      package: '$(Pipeline.Workspace)/drop/$(Build.BuildId).zip'
+      deploymentMethod: 'zipDeploy'

@@ -1,0 +1,39 @@
+{
+  "managedApiConnections": {
+    "office365": {
+      "api": {
+        "id": "/subscriptions/@appsetting('WORKFLOWS_SUBSCRIPTION_ID')/providers/Microsoft.Web/locations/uksouth/managedApis/office365"
+      },
+      "authentication": {
+        "type": "ManagedServiceIdentity"
+      },
+      "connection": {
+        "id": "/subscriptions/@appsetting('WORKFLOWS_SUBSCRIPTION_ID')/resourceGroups/@appsetting('WORKFLOWS_LOCATION_NAME')/providers/Microsoft.Web/connections/office365"
+      },
+      "connectionRuntimeUrl": "@appsetting('Office365_ConnectionRuntimeUrl')"
+    }
+  },
+  "serviceProviderConnections": {
+    "azurequeues": {
+      "displayName": "storage",
+      "parameterValues": {
+        "authProvider": {
+          "Type": "ManagedServiceIdentity"
+        },
+        "queueServiceUri": "@appsetting('queueServiceUri')"
+      },
+      "serviceProvider": {
+        "id": "/serviceProviders/azurequeues"
+      }
+    },
+    "AzureBlob": {
+      "parameterValues": {
+        "blobStorageEndpoint": "@appsetting('batchBlobUri')"
+      },
+      "serviceProvider": {
+        "id": "/serviceProviders/AzureBlob"
+      },
+      "displayName": "blobCon"
+    }
+  }
+}

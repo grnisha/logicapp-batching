@@ -1,0 +1,11 @@
+variables:
+  - name: environmentName
+    value: devnp
+  - name: planSku
+    value: WS1
+  - name: planTier
+    value: WorkflowStandard 
+  - name: sgsku
+    value: Standard_LRS
+  - name: appsgsku
+    value: Standard_LRS

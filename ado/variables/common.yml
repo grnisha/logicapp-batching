@@ -1,0 +1,20 @@
+variables: 
+  - name: location
+    value: 'uk south'
+  - name: sgName
+    value: 'stdemouks$(environmentName)001'
+  - name: logName
+    value: log-demo-uks-001-$(environmentName)
+  - name: appInsName
+    value: ai-demo-uks-001-$(environmentName)
+  - name: vnetName
+    value: vnet-demo-uks-001-$(environmentName)
+  - name: planName
+    value: plan-demo-uks-001-$(environmentName)
+  - name: logicAppName
+    value: logic-demo-uks-001-$(environmentName)
+  - name: rgName
+    value: rg-demo-uks-001-$(environmentName)
+  - name: appsgName
+    value: 'stdemouks$(environmentName)002'
+

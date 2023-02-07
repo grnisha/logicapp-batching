@@ -1,0 +1,18 @@
+{ "letter":
+{
+"title": "{{ content.AnnualBenefitReminderLetter.Data.Title }}",
+"firstName": "{{ content.AnnualBenefitReminderLetter.Data.GivenName }}",
+"lastName": "{{ content.AnnualBenefitReminderLetter.Data.FamilyName }}",
+"email": "{{ content.AnnualBenefitReminderLetter.Data.EmailAddress }}",
+"address": 
+{
+    "addressLines": [{% for line in content.AnnualBenefitReminderLetter.Data.DocumentAddress.AddressLines.AddressLine %}
+  {
+  "addressLine": "{{ line }}"
+  }{% if forloop.last == false %},{% endif %}
+{% endfor %}
+],
+"postCode" :"{{ content.AnnualBenefitReminderLetter.Data.DocumentAddress.PostCode }}"
+}
+}
+}

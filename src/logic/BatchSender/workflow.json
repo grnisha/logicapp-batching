@@ -1,0 +1,56 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "actions": {
+      "BatchReceiver": {
+        "inputs": {
+          "batchName": "TestBatch1",
+          "content": "@triggerOutputs()?['body']?['messageText']",
+          "host": {
+            "triggerName": "Batch_messages",
+            "workflow": {
+              "id": "BatchReceiver"
+            }
+          }
+        },
+        "runAfter": {
+          "Compose": [
+            "Succeeded"
+          ]
+        },
+        "type": "SendToBatch"
+      },
+      "Compose": {
+        "inputs": {
+          "interfaceId": "IDD1.0",
+          "trace": "Message Received in Batch Sender"
+        },
+        "runAfter": {},
+        "trackedProperties": {
+          "InterfaceId": "@{outputs('Compose')?['interfaceId']}",
+          "TraceMessage": "@{outputs('Compose')?['trace']}"
+        },
+        "type": "Compose"
+      }
+    },
+    "contentVersion": "1.0.0.0",
+    "outputs": {},
+    "triggers": {
+      "When_messages_are_available_in_a_queue": {
+        "inputs": {
+          "parameters": {
+            "queueName": "test01",
+            "visibilityTimeout": "30"
+          },
+          "serviceProviderConfiguration": {
+            "connectionName": "azurequeues",
+            "operationId": "receiveQueueMessages",
+            "serviceProviderId": "/serviceProviders/azurequeues"
+          }
+        },
+        "type": "ServiceProvider"
+      }
+    }
+  },
+  "kind": "Stateful"
+}
