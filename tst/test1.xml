@@ -1,0 +1,32 @@
+<AnnualBenefitReminderLetter>
+<Data>
+    <Title>Mr</Title>
+    <GivenName>Keith</GivenName>
+    <FamilyName>Kae</FamilyName>
+    <Salutation>Mr Keith</Salutation>
+    <ContactName>Mr Keith Kae</ContactName>
+    <DateOfBirth>2000-01-01</DateOfBirth>
+    <Gender>Male</Gender>
+    <EmailAddress>keithkeah@cmail.com</EmailAddress>
+    <HomeTelephoneNo>01237977678</HomeTelephoneNo>
+    <WorkTelephoneNo></WorkTelephoneNo>
+    <MobileTelephoneNo></MobileTelephoneNo>
+    <ProductName>Cash Plan 100 Level 1</ProductName>
+    <MembershipNumber>1233</MembershipNumber>
+    <RenewalDate>2018-04-13</RenewalDate>
+    <EnrolmentDate>2010-02-11</EnrolmentDate>
+    <IssueDate>2013-03-03</IssueDate>
+    <MonthlyPrice>12.50</MonthlyPrice>
+    <MonthlyPriceDate>2018-02-07</MonthlyPriceDate>
+    <DocumentAddress>
+      <Addressee>Keith Kae</Addressee>
+      <AddressLines>
+        <AddressLine>134 Olive Road</AddressLine>
+        <AddressLine>Blueberry</AddressLine>
+        <AddressLine>Hamster</AddressLine>
+        <AddressLine>Reading</AddressLine>
+      </AddressLines>
+      <PostCode></PostCode>
+    </DocumentAddress>
+  </Data>
+</AnnualBenefitReminderLetter>
