@@ -3,6 +3,7 @@ param storageAccountConnectionString string
 param appInsightsKey string
 param region string = 'uksouth'
 param location string = resourceGroup().location
+param appsgName string
 
 
 var appInsightsConnection = 'InstrumentationKey=${appInsightsKey};IngestionEndpoint=https://${region}-1.in.applicationinsights.azure.com/;LiveEndpoint=https://${region}.livediagnostics.monitor.azure.com/'
@@ -21,10 +22,11 @@ resource functionAppAppsettings 'Microsoft.Web/sites/config@2022-03-01' = {
     WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: storageAccountConnectionString
     WEBSITE_CONTENTSHARE: toLower(logicAppName)
     WEBSITE_NODE_DEFAULT_VERSION: '~14'
-    FUNCTIONS_V2_COMPATIBILITY_MODE: 'true'
     WORKFLOWS_SUBSCRIPTION_ID: subscription().subscriptionId
     WORKFLOWS_LOCATION_NAME: location
-    WEBSITE_RUN_FROM_PACKAGE: '1'
+    WORKFLOWS_RESOURCE_GROUP: resourceGroup().name
+    queueServiceUri: 'https://${appsgName}.queue.core.windows.net/'
+    batchBlobUri: 'https://${appsgName}.blob.core.windows.net/'
   }
 }
 

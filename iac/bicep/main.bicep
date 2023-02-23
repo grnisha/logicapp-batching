@@ -104,6 +104,7 @@ module logicAppSettingsModule 'modules/logicappsettings.bicep' = {
     logicAppName: logicAppModule.outputs.logicAppName
     storageAccountConnectionString: logicAppModule.outputs.storageAccountConnectionString
     location: location
+    appsgName: appsgName
   }  
   dependsOn:[
     logicAppModule

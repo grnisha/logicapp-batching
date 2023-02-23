@@ -14,7 +14,7 @@ steps:
         $ifExists = az group exists -n "$(rgName)"
         if ($ifExists -eq 'false') {
           echo 'creating the resource group'
-          az group create -n "$(rgName)" -l "$(rgLocation)"
+          az group create -n "$(rgName)" -l "$(location)"
         }       
 
 
@@ -28,16 +28,18 @@ steps:
         az deployment group create `
         --name funcapp-$(Build.BuildNumber) `
         --resource-group "$(rgName)" `
-        --template-file "$(Pipeline.Workspace)/deploy/main.bicep" `
+        --template-file "$(Pipeline.Workspace)/deploy/bicep/main.bicep" `
         --parameters "sgName=$(sgName)" `
         "buildNumber=$(Build.BuildNumber)" `
         "appInsName=ins-$(logicAppName)" `
-        "sku=$(sgType)" `
+        "sgsku=$(sgsku)" `
         "planName=$(planName)" `
         "planSku=$(planSku)" `
         "planTier=$(planTier)" `
         "logName=$(logName)" `
-        "keyVaultName=$(keyVaultName)" `
+        "vnetName=$(vnetName)" `
+        "appsgName=$(appsgName)" `
+        "appsgsku=$(appsgsku)" `
         "logicAppName=$(logicAppName)"
 
   - task: AzureFunctionApp@1

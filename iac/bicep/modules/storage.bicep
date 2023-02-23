@@ -106,12 +106,10 @@ resource logicAppRecource 'Microsoft.Web/sites@2022-03-01' existing = {
 
 //role
 resource blobdataContributor 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
-  name: 'Storage Blob Data Contributor'
-  scope: resourceGroup()
+  name: 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 }
 resource queuedataContributor 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
-  name: 'Storage Queue Data Contributor'
-  scope: resourceGroup()
+  name: '974c5e8b-45b9-4653-ba55-5f855dd0fb88'
 }
 
 //assign roles

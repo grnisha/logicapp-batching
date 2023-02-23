@@ -10,7 +10,7 @@ steps:
   - task: ArchiveFiles@2
     displayName: "Create project zip"
     inputs:
-      rootFolderOrFile: "$(System.DefaultWorkingDirectory)/publish_output/logic"
+      rootFolderOrFile: "$(System.DefaultWorkingDirectory)/publish_output/src/logic"
       includeRootFolder: false
       archiveType: zip
       archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
