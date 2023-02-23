@@ -1,2 +1,2 @@
-# logicapp-batching
+# Batching example
 
